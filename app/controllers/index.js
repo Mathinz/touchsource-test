@@ -5,7 +5,6 @@ const Users = db.users;
 const Op = db.Sequelize.Op;
 
 exports.createUser = async (req, res) => {
-  console.log(req.body.first, req.body.last);
   if (!(req.body.first || req.body.last)) {
     res.status(400).send({
       message: 'First and last name are required',
@@ -19,8 +18,8 @@ exports.createUser = async (req, res) => {
     };
 
     const data = await Users.create(User);
-    if (!data) return res.status(200).send({ success: false, message: 'User couldn not be created' });
-    res.status(200).send({ success: true, user: data });
+    if (!data) return res.status(500).send({ success: false, message: 'User could not be created' });
+    res.status(201).send({ success: true, user: data });
   } catch (error) {
     console.log(error);
     res.status(500).send({ success: false, message: error.message || 'Something went wrong' });
@@ -35,7 +34,7 @@ exports.findAllPeople = async (req, res) => {
         ['first', 'ASC'],
       ],
     });
-    if (data.length === 0) return res.status(200).send({ success: false, message: 'No user found' });
+    if (data.length === 0) return res.status(204).send({ success: false, message: 'No user found' });
     res.status(200).send({ success: true, users: data });
   } catch (error) {
     res.status(500).send({ success: false, message: error.message || 'Something went wrong' });
@@ -59,8 +58,7 @@ exports.findPersonByName = async (req, res) => {
       },
     });
 
-    if (!data) return res.status(200).send({ success: false, message: 'user not found' });
-
+    if (!data) return res.status(204).send({ success: false, message: 'user not found' });
     res.status(200).send({ success: true, user: data });
   } catch (error) {
     res.status(500).send({ success: false, message: error.message || 'Something went wrong' });
