@@ -22,6 +22,7 @@ exports.createUser = async (req, res) => {
     if (!data) return res.status(200).send({ success: false, message: 'User couldn not be created' });
     res.status(200).send({ success: true, user: data });
   } catch (error) {
+    console.log(error);
     res.status(500).send({ success: false, message: error.message || 'Something went wrong' });
   }
 };
@@ -74,7 +75,12 @@ exports.parseCsv = async (req, res) => {
       .pipe(csv())
       .on('data', (data) => results.push(data))
       .on('end', async () => {
-        const allUsers = await Users.bulkCreate(results);
+        let mappedUsers = await Promise.all(
+          results.map((usr) => {
+            return { first: usr.first, last: usr.last };
+          })
+        );
+        const allUsers = await Users.bulkCreate(mappedUsers);
         res.status(200).send({ success: true, result: allUsers });
       });
   } catch (error) {
